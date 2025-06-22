@@ -154,9 +154,9 @@
   - **Action:** Develop a real-time notification system to alert users of important events, such as new comments on their content or mentions.
   - **Notes:** Added a `notifications` table to the DB. Modified the `addComment` action to create notifications. Built a real-time `NotificationBell.tsx` component using Supabase channels and integrated it into the main `Header.tsx`. Created a server action (`notifications-actions.ts`) to mark notifications as read.
 
-- [ ] **4.7: User Roles & Permissions**
+- [x] **4.7: User Roles & Permissions**
   - **Action:** Refine and test the RBAC system to ensure all user roles function as expected.
-  - **Notes:**
+  - **Notes:** Added a `role` column to the `profiles` table and created granular RLS policies for assets and comments. Implemented a client-side `useUser` hook and `UserProvider` to easily access user/profile data. Created a `RoleGuard` component to conditionally render UI based on user roles and applied it to protect creation actions.
 
 - [ ] **4.8: Search & Filtering**
   - **Action:** Implement advanced search and filtering capabilities in the main directories.

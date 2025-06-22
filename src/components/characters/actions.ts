@@ -125,4 +125,12 @@ export async function addComment(characterId: string, content: string) {
   // Revalidate the path to ensure server-rendered data is fresh on next load,
   // but the real-time update will handle the immediate UI change.
   revalidatePath(`/characters/${characterId}`);
+}
+
+export async function createCharacter() {
+  // Placeholder function
+  console.log('Create character action called');
+  // In a real implementation, you would create a new character record in the database
+  // and redirect to the new character's page, e.g., redirect(`/characters/new-id`);
+  revalidatePath('/characters');
 } 
