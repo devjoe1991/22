@@ -112,9 +112,10 @@ export default function LoginPage() {
     return (
         <div className="relative flex flex-col items-center justify-center min-h-screen bg-transparent text-white overflow-hidden">
             <MatrixRain />
-            <div className="w-full max-w-md p-8 space-y-6 bg-black/40 backdrop-blur-md rounded-xl shadow-lg z-10 border border-blue-500/50">
+            <div className="w-full max-w-sm mx-4 p-6 sm:p-8 space-y-6 bg-black/40 backdrop-blur-md rounded-xl shadow-lg z-10 border border-blue-500/50">
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold text-white">Login</h1>
+                    <p className="text-lg text-gray-200">Welcome to:</p>
+                    <h1 className="text-4xl font-bold text-white mt-1">The Rebirth : H22</h1>
                     <p className="text-gray-300 mt-2">Enter your credentials to access your account</p>
                 </div>
 
