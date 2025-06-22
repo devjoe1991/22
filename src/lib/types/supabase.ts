@@ -73,6 +73,7 @@ export type Database = {
           id: string
           name: string
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -80,6 +81,7 @@ export type Database = {
           id?: string
           name: string
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -87,8 +89,39 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
+      }
+      character_scenes: {
+        Row: {
+          character_id: string
+          scene_id: string
+        }
+        Insert: {
+          character_id: string
+          scene_id: string
+        }
+        Update: {
+          character_id?: string
+          scene_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "character_scenes_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "character_scenes_scene_id_fkey"
+            columns: ["scene_id"]
+            isOneToOne: false
+            referencedRelation: "scenes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       characters: {
         Row: {
@@ -195,6 +228,36 @@ export type Database = {
         }
         Relationships: []
       }
+      scene_chapters: {
+        Row: {
+          chapter_id: string
+          scene_id: string
+        }
+        Insert: {
+          chapter_id: string
+          scene_id: string
+        }
+        Update: {
+          chapter_id?: string
+          scene_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scene_chapters_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scene_chapters_scene_id_fkey"
+            columns: ["scene_id"]
+            isOneToOne: false
+            referencedRelation: "scenes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scenes: {
         Row: {
           created_at: string | null
@@ -202,6 +265,7 @@ export type Database = {
           id: string
           name: string
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -209,6 +273,7 @@ export type Database = {
           id?: string
           name: string
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -216,6 +281,7 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

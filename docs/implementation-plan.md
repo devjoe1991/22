@@ -142,9 +142,13 @@
   - **Utilities:** `logAction`, `getUserColor`
   - **Notes:** Implemented the audit trail system. Created a generic `logAction` server function. Integrated logging into existing character actions. Built a real-time `ActivityFeed` component that subscribes to new log entries. Implemented a color-coding utility to visually distinguish user actions.
 
-- [ ] **4.5: Advanced Workflow & State Management**
+- [x] **4.5: Advanced Workflow & State Management**
   - **Action:** Enhance the workflow editor with more complex node types and state management using Zustand.
-  - **Notes:**
+  - **Notes:** Refactored the workflow canvas to use a new Zustand store (`src/lib/store/workflow-store.ts`) for state management. Introduced a new custom `CharacterNode` (`src/components/workflows/CharacterNode.tsx`) and updated `WorkflowCanvas.tsx` to integrate these changes.
+
+- [ ] **4.5.1: Implement Scenes & Chapters with Tagging**
+  - **Action:** Build out the core `scenes` and `chapters` sections. Implement a many-to-many "tagging" system to link characters to scenes.
+  - **Notes:** Updated the database schema, adding `scenes`, `chapters`, and association tables (`character_scenes`, `scene_chapters`). Created server actions (`src/app/actions/scenes-actions.ts`) to manage data. Built directory and detail pages (`/scenes` and `/scenes/[id]`) with a tagging UI to link characters. Updated the main sidebar navigation.
 
 - [ ] **4.6: Notifications System**
   - **Action:** Develop a real-time notification system to alert users of important events, such as new comments on their content or mentions.
