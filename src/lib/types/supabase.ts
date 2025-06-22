@@ -133,6 +133,7 @@ export type Database = {
           story_content: Json | null
           thumbnail_url: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -143,6 +144,7 @@ export type Database = {
           story_content?: Json | null
           thumbnail_url?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -153,6 +155,7 @@ export type Database = {
           story_content?: Json | null
           thumbnail_url?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -201,6 +204,36 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          content: Json | null
+          created_at: string
+          event_type: string
+          id: string
+          is_read: boolean
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          content?: Json | null
+          created_at?: string
+          event_type: string
+          id?: string
+          is_read?: boolean
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          content?: Json | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          is_read?: boolean
+          user_id?: string
         }
         Relationships: []
       }

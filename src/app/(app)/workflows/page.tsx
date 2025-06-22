@@ -53,7 +53,9 @@ export default async function WorkflowsPage() {
                   <CardTitle>{workflow.name || 'Untitled Workflow'}</CardTitle>
                   <CardDescription>
                     Created on:{' '}
-                    {new Date(workflow.created_at).toLocaleDateString()}
+                    {workflow.created_at
+                      ? new Date(workflow.created_at).toLocaleDateString()
+                      : 'Date not available'}
                   </CardDescription>
                 </CardHeader>
               </Card>

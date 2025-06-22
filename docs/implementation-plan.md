@@ -146,13 +146,13 @@
   - **Action:** Enhance the workflow editor with more complex node types and state management using Zustand.
   - **Notes:** Refactored the workflow canvas to use a new Zustand store (`src/lib/store/workflow-store.ts`) for state management. Introduced a new custom `CharacterNode` (`src/components/workflows/CharacterNode.tsx`) and updated `WorkflowCanvas.tsx` to integrate these changes.
 
-- [ ] **4.5.1: Implement Scenes & Chapters with Tagging**
+- [x] **4.5.1: Implement Scenes & Chapters with Tagging**
   - **Action:** Build out the core `scenes` and `chapters` sections. Implement a many-to-many "tagging" system to link characters to scenes.
   - **Notes:** Updated the database schema, adding `scenes`, `chapters`, and association tables (`character_scenes`, `scene_chapters`). Created server actions (`src/app/actions/scenes-actions.ts`) to manage data. Built directory and detail pages (`/scenes` and `/scenes/[id]`) with a tagging UI to link characters. Updated the main sidebar navigation.
 
-- [ ] **4.6: Notifications System**
+- [x] **4.6: Notifications System**
   - **Action:** Develop a real-time notification system to alert users of important events, such as new comments on their content or mentions.
-  - **Notes:**
+  - **Notes:** Added a `notifications` table to the DB. Modified the `addComment` action to create notifications. Built a real-time `NotificationBell.tsx` component using Supabase channels and integrated it into the main `Header.tsx`. Created a server action (`notifications-actions.ts`) to mark notifications as read.
 
 - [ ] **4.7: User Roles & Permissions**
   - **Action:** Refine and test the RBAC system to ensure all user roles function as expected.

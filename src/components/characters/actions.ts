@@ -79,15 +79,44 @@ export async function addComment(characterId: string, content: string) {
     throw new Error('Comment cannot be empty.');
   }
 
-  const { error } = await supabase.from('comments').insert({
+  const { data: newComment, error } = await supabase.from('comments').insert({
     parent_id: characterId,
     content: content,
     user_id: user.id,
-  });
+  }).select().single();
 
   if (error) {
     throw new Error(`Database error: ${error.message}`);
   }
+
+  // --- Start of Notification Logic ---
+  if (newComment) {
+    const { data: parentItem } = await supabase
+      .from('characters')
+      .select('user_id, name')
+      .eq('id', newComment.parent_id)
+      .single();
+
+    if (parentItem && parentItem.user_id) {
+        const commenterId = user.id;
+        const ownerId = parentItem.user_id;
+
+        if (commenterId !== ownerId) {
+            await supabase.from('notifications').insert({
+                user_id: ownerId,
+                actor_id: commenterId,
+                event_type: 'new_comment',
+                content: {
+                    comment_id: newComment.id,
+                    parent_id: newComment.parent_id,
+                    parent_type: 'character',
+                    parent_name: parentItem.name,
+                }
+            });
+        }
+    }
+  }
+  // --- End of Notification Logic ---
 
   if (!error) {
     await logAction('comment.create', { characterId, content: content.substring(0, 50) });

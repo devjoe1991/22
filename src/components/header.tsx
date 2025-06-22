@@ -11,7 +11,10 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import AuthButton from '@/components/auth/auth-button'
+import AuthButton from './auth/auth-button'
+import { NotificationBell } from './layout/NotificationBell'
+import { createClient as createSupabaseServerClient } from '@/lib/supabase/server'
+import { type Database } from '@/lib/types/supabase'
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -22,9 +25,25 @@ const navItems = [
   { href: '/workflows', icon: Workflow, label: 'Workflows' },
 ]
 
-export default function Header() {
+type Notification = Database['public']['Tables']['notifications']['Row']
+
+export async function Header() {
+  const supabase = createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  let notifications: Notification[] = []
+  if (user) {
+    const { data } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('is_read', false)
+      .order('created_at', { ascending: false })
+    notifications = data || []
+  }
+
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
@@ -53,7 +72,12 @@ export default function Header() {
       <div className="w-full flex-1">
         {/* Can add a search bar here later */}
       </div>
-      <AuthButton />
+      <div className="relative ml-auto flex items-center md:grow-0">
+        {user && <NotificationBell serverNotifications={notifications} userId={user.id} />}
+      </div>
+      <div className="relative flex items-center md:grow-0">
+        <AuthButton />
+      </div>
     </header>
   )
 } 
