@@ -14,25 +14,39 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get: (name: string) => request.cookies.get(name)?.value,
-        set: (name: string, value: string, options: CookieOptions) => {
-          request.cookies.set({ name, value, ...options })
-          response = NextResponse.next({ request: { headers: request.headers } })
-          response.cookies.set({ name, value, ...options })
+        get(name: string) {
+          return request.cookies.get(name)?.value;
         },
-        remove: (name: string, options: CookieOptions) => {
-          request.cookies.set({ name, value: '', ...options })
-          response = NextResponse.next({ request: { headers: request.headers } })
-          response.cookies.set({ name, value: '', ...options })
+        set(name, value, options) {
+          request.cookies.set({ name, value, ...options });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({ name, value, ...options });
+        },
+        remove(name, options) {
+          request.cookies.set({ name, value: '', ...options });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({ name, value: '', ...options });
         },
       },
     }
   )
 
-  // Refresh session if expired - this is a key purpose of the middleware
-  const { data: { session } } = await supabase.auth.getSession()
+  // IMPORTANT: Avoid calling `getSession()` here, as it can lead to an infinite loop.
+  // Instead, refresh the session on every request.
+  // See https://supabase.com/docs/guides/auth/server-side/nextjs
+  await supabase.auth.getUser();
 
   // If user is not signed in and tries to access a protected route, redirect to login
+  const { data: { session } } = await supabase.auth.getSession()
+
   if (!session && !request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/signup')) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
@@ -56,6 +70,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
      */
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],

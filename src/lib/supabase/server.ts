@@ -3,7 +3,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/lib/types/supabase'
 
-export const createClient = () => {
+export function createClient() {
   const cookieStore = cookies()
 
   return createServerClient<Database>(
@@ -28,6 +28,8 @@ export const createClient = () => {
             cookieStore.set({ name, value: '', ...options })
           } catch (error) {
             // The `delete` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
           }
         },
       },
