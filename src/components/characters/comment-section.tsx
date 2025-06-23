@@ -27,7 +27,7 @@ export default function CommentSection({ characterId, initialComments }: Comment
     // This is where the real-time magic happens.
     // We subscribe to a channel that listens for any inserts on the 'comments' table.
     const channel = supabase
-      .channel(`comments-for-${characterId}`)
+      .channel(`comments:${characterId}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'comments', filter: `parent_id=eq.${characterId}` },
@@ -54,7 +54,7 @@ export default function CommentSection({ characterId, initialComments }: Comment
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, characterId]);
+  }, [characterId]);
 
   const handleAddComment = async () => {
     if (!newCommentRef.current?.value) return;

@@ -129,8 +129,5 @@ export async function addComment(characterId: string, content: string) {
 
 export async function createCharacter() {
   // Placeholder function
-  console.log('Create character action called');
-  // In a real implementation, you would create a new character record in the database
-  // and redirect to the new character's page, e.g., redirect(`/characters/new-id`);
   revalidatePath('/characters');
 } 

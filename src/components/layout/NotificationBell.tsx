@@ -30,8 +30,10 @@ export function NotificationBell({
   }, [serverNotifications]);
   
   useEffect(() => {
+    if (!userId) return;
+
     const channel = supabase
-      .channel(`realtime-notifications:${userId}`)
+      .channel(`notifications:${userId}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
@@ -44,7 +46,7 @@ export function NotificationBell({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, userId]);
+  }, [userId]);
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 

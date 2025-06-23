@@ -158,9 +158,9 @@
   - **Action:** Refine and test the RBAC system to ensure all user roles function as expected.
   - **Notes:** Added a `role` column to the `profiles` table and created granular RLS policies for assets and comments. Implemented a client-side `useUser` hook and `UserProvider` to easily access user/profile data. Created a `RoleGuard` component to conditionally render UI based on user roles and applied it to protect creation actions.
 
-- [ ] **4.8: Search & Filtering**
+- [x] **4.8: Search & Filtering**
   - **Action:** Implement advanced search and filtering capabilities in the main directories.
-  - **Notes:**
+  - **Notes:** Implemented search (by name/description) and status filtering on the Characters directory page. The page state is managed via URL query parameters. Created a reusable `FilterControls` component.
 
 - [ ] **4.9: Deployment & Finalization**
   - **Action:** Prepare the application for deployment. This includes optimizing performance, running tests, and creating a production build.

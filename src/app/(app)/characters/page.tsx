@@ -1,20 +1,53 @@
-import CharacterCard from '@/components/characters/character-card';
 import { createClient } from '@/lib/supabase/server';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { PlusCircle } from 'lucide-react';
-import { createCharacter } from '@/components/characters/actions';
-import { RoleGuard } from '@/components/auth/RoleGuard';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { createCharacter } from '@/app/actions/character-actions';
+import { PlusCircle } from 'lucide-react';
+import { RoleGuard } from '@/components/auth/RoleGuard';
+import { FilterControls } from '@/components/directory/FilterControls';
+import { Tables } from '@/lib/types/supabase';
 
-export default async function CharactersPage() {
+// Page component now accepts searchParams
+export default async function CharactersPage({
+  searchParams,
+}: {
+  searchParams?: {
+    search?: string;
+    status?: string;
+  };
+}) {
   const supabase = createClient();
-  const cookieStore = cookies();
-  const { data: characters } = await supabase.from('characters').select('*');
+
+  const searchQuery = searchParams?.search || '';
+  const statusFilter = searchParams?.status || '';
+
+  // Start building the Supabase query
+  let query = supabase
+    .from('characters')
+    .select('*');
+
+  // Apply text search filter if a query exists
+  // We use `or` to search in both name and description fields
+  if (searchQuery) {
+    query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+  }
+
+  // Apply status filter if a status is selected
+  if (statusFilter && statusFilter !== 'all') {
+    query = query.eq('status', statusFilter);
+  }
+  
+  // Order by creation date
+  query = query.order('created_at', { ascending: false });
+
+  // Execute the final query
+  const { data: characters } = await query;
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 w-full max-w-screen-2xl">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Characters</h1>
         <RoleGuard allowedRoles={['admin', 'editor']}>
           <form action={createCharacter}>
@@ -25,9 +58,23 @@ export default async function CharactersPage() {
           </form>
         </RoleGuard>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {characters?.map((character) => (
-          <CharacterCard key={character.id} character={character} />
+
+      {/* Add the FilterControls component here */}
+      <FilterControls />
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        {characters?.map((character: Tables<'characters'>) => (
+          <Link href={`/characters/${character.id}`} key={character.id}>
+            <Card className="hover:shadow-md transition-shadow">
+              {/* You can add a thumbnail image here later using character.thumbnail_url */}
+              <CardHeader>
+                <CardTitle>{character.name}</CardTitle>
+                <CardDescription className="capitalize">
+                  {character.status?.replace('-', ' ')}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>

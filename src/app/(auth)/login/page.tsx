@@ -104,7 +104,6 @@ export default function LoginPage() {
             return;
         }
 
-        console.log('Login successful! Redirecting...');
         router.push('/characters');
         router.refresh();
     };

@@ -19,31 +19,25 @@ export default function ActivityFeed({ initialLogs }: ActivityFeedProps) {
   const [logs, setLogs] = useState(initialLogs);
 
   useEffect(() => {
+    // Set up Supabase real-time subscription
     const channel = supabase
-      .channel('audit-log-changes')
+      .channel('audit_log_changes')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'audit_log' },
-        async (payload) => {
-          const { data: newLog, error } = await supabase
-            .from('audit_log')
-            .select('*, profiles(username)')
-            .eq('id', payload.new.id)
-            .single();
-
-          if (error) {
-            console.error(error);
-          } else if (newLog) {
-            setLogs((currentLogs) => [newLog as unknown as AuditLogWithProfile, ...currentLogs]);
-          }
+        (payload) => {
+          // When a new log comes in, add it to the top of the list
+          const newLog = payload.new as AuditLogWithProfile;
+          setLogs((prevLogs) => [newLog, ...prevLogs]);
         }
       )
       .subscribe();
 
+    // Cleanup subscription on component unmount
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, []); // Run only once on mount
 
   return (
     <Card>

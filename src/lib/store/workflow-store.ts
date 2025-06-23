@@ -58,12 +58,14 @@ export const useWorkflowStore = create<RFState>((set, get) => ({
   handleSave: async () => {
     const { nodes, edges, workflowId } = get();
     if (!workflowId) {
-      console.error("No workflow ID is set. Cannot save.");
       // In a real app, you'd show a toast notification here.
       return;
     }
-    await saveWorkflow(workflowId, nodes, edges);
-    // Here you could trigger a toast notification for "Saved!"
-    console.log("Workflow saved!");
-  }
+    try {
+      await saveWorkflow(workflowId, nodes, edges);
+      // Here you could trigger a toast notification for "Saved!"
+    } catch (error) {
+      // Optionally, set an error state here
+    }
+  },
 })); 
