@@ -32,10 +32,10 @@ type ColorKeyManagerProps = {
 
 function RemoveKeyButton({ isPending }: { isPending: boolean }) {
     return (
-        <button type="submit" disabled={isPending} className="ml-2 p-0.5 rounded-full hover:bg-black/20 transition-colors disabled:opacity-50">
-            {isPending ? <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div> : <X size={14} />}
+        <button type="submit" disabled={isPending} className="ml-2 text-muted-foreground hover:text-foreground">
+            {isPending ? "..." : <X className="h-4 w-4" />}
         </button>
-    )
+    );
 }
 
 function AddKeyForm({ entityId, entityType, allAvailableColorKeys, appliedColorKeys }: { entityId: string, entityType: string, allAvailableColorKeys: ColorKey[], appliedColorKeys: ColorKey[] }) {
@@ -96,26 +96,40 @@ function AddKeyForm({ entityId, entityType, allAvailableColorKeys, appliedColorK
 }
 
 export function ColorKeyManager({ entityId, entityType, appliedColorKeys, allAvailableColorKeys }: ColorKeyManagerProps) {
+    const [isPending, startTransition] = useTransition();
+
+    const handleRemoveKey = (keyId: string) => {
+      startTransition(() => {
+        removeColorKeyFromEntity(entityId, entityType, keyId)
+          .then(response => {
+            if (response?.error) {
+              toast.error(response.error);
+            } else {
+              toast.success("Key removed.");
+            }
+          });
+      });
+    };
+
     return (
         <div className="p-4 border rounded-lg bg-card text-card-foreground">
-            <h3 className="font-semibold text-lg mb-4">Color Keys</h3>
+            <h3 className="text-lg font-semibold mb-2">Color Keys</h3>
             <div className="flex flex-wrap gap-2 items-center">
-                {appliedColorKeys.map(key => (
-                    <Badge key={key.id} style={{ backgroundColor: key.color, color: getContrastYIQ(key.color) }} className="text-sm font-medium">
+                {appliedColorKeys.map((key) => (
+                    <Badge key={key.id} variant="outline" className="flex items-center gap-2 pr-1" style={{ backgroundColor: `${key.color}40`, borderColor: key.color }}>
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: key.color }}></div>
                         {key.name}
                         <RoleGuard allowedRoles={['admin', 'editor']}>
-                            <form action={() => removeColorKeyFromEntity(entityId, entityType, key.id)}>
-                                <RemoveKeyButton isPending={false} />
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                handleRemoveKey(key.id);
+                            }}>
+                                <RemoveKeyButton isPending={isPending} />
                             </form>
                         </RoleGuard>
                     </Badge>
                 ))}
-                 <AddKeyForm 
-                    entityId={entityId} 
-                    entityType={entityType} 
-                    allAvailableColorKeys={allAvailableColorKeys} 
-                    appliedColorKeys={appliedColorKeys} 
-                />
+                <AddKeyForm entityId={entityId} entityType={entityType} allAvailableColorKeys={allAvailableColorKeys} appliedColorKeys={appliedColorKeys} />
             </div>
         </div>
     );
