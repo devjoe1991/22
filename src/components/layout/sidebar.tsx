@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Settings, Film, BookOpen, Home, PenSquare, Eye } from 'lucide-react';
+import { Users, Settings, Film, BookOpen, Home, PenSquare, Eye, Palette, MessageSquareText } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Badge } from '@/components/ui/badge';
+import { RoleGuard } from '../auth/RoleGuard';
 
 export const NAV_LINKS = [
     { href: '/dashboard', icon: Home, label: 'Home' },
@@ -13,6 +14,7 @@ export const NAV_LINKS = [
     { href: "/characters", label: "Characters", icon: Users },
     { href: "/scenes", label: "Scenes", icon: Film },
     { href: "/chapters", label: "Chapters", icon: BookOpen },
+    { href: "/color-keys", label: "Color Keys", icon: Palette },
     { href: "/account", label: "Account", icon: Settings },
 ]
 
@@ -25,6 +27,11 @@ type ItemCounts = {
 
 export default function Sidebar({ counts }: { counts: ItemCounts }) {
     const pathname = usePathname();
+
+    const adminNavItems = [
+        { href: '/notes', icon: <MessageSquareText className="h-4 w-4" />, label: 'Notes' },
+        { href: '/account', icon: <Settings className="h-4 w-4" />, label: 'Account' },
+    ]
 
     return (
         <div className="hidden border-r bg-muted/40 md:block">
@@ -68,6 +75,28 @@ export default function Sidebar({ counts }: { counts: ItemCounts }) {
                                 </Link>
                             )
                         })}
+                        <RoleGuard allowedRoles={['admin']}>
+                            <div className="mt-4 pt-4 border-t">
+                                {adminNavItems.map((item) => {
+                                    const isActive = pathname.startsWith(item.href);
+                                    return (
+                                         <Link
+                                            key={item.label}
+                                            href={item.href}
+                                            className={cn(
+                                            "flex items-center justify-between rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                                            isActive && "bg-muted text-primary"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                            {item.icon}
+                                            <span>{item.label}</span>
+                                            </div>
+                                        </Link>
+                                    )
+                                })}
+                            </div>
+                        </RoleGuard>
                     </nav>
                 </div>
             </div>

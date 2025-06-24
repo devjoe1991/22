@@ -118,87 +118,47 @@
 
 ---
 
-### **Phase 4: Interactive Editors & Advanced Features (Weeks 5-6)**
+### **Phase 4: Dual Tagging System: Attributes & Color Keys (Current)**
 
-- [x] **4.1: Build the Visual Workflow Editor**
-  - **Action:** Implement a node-based editor using `React Flow` for creating and managing narrative or process workflows.
-  - **Page:** `/workflows` and `/workflows/[id]`
-  - **Components:** `WorkflowCanvas.tsx`, `CustomNode.tsx`
-  - **Notes:** Built the visual workflow editor using `React Flow`. Created a `workflows` table in Supabase. Implemented `WorkflowCanvas` client component, custom nodes, and a server action to save state. Added pages to list and view individual workflows. Integrated the feature into the main navigation.
+This phase implements two distinct, coexisting systems for categorizing content: character-specific attributes and global, thematic Color Keys.
 
-- [x] **4.2: Develop the Rich Text Editor**
-  - **Action:** Integrate `Tiptap` to create a rich text editor for writing scene details, character bios, or chapter content.
-  - **Component:** `TextEditor.tsx`
-  - **Notes:** Implemented a rich text editor using `Tiptap`. Created a reusable `TiptapEditor` component with a formatting toolbar. Added a `story_content` JSONB column to the `characters` table. Implemented an auto-saving mechanism with a 2-second debounce, providing users with real-time feedback. Integrated the editor into the character detail page.
+- **[X] Database Schema for Dual Systems**
+  - **[X]** Add `attribute_tags` JSONB column to `characters` table.
+  - **[X]** Create `color_keys` table for global, color-coded tags.
+  - **[X]** Create `entity_color_keys` association table.
+  - **[X]** Clean up obsolete `tags` and `entity_tags` tables.
 
-- [x] **4.3: Implement Real-time Functionality**
-  - **Action:** Use Supabase Realtime to enable real-time features, starting with the comment section.
-  - **Component:** `CommentSection.tsx`
-  - **Notes:** Implemented real-time functionality in the `CommentSection`. The component now subscribes to database changes and displays new comments instantly without a page refresh. Added RLS policies for comment security and a server action for comment creation. A temporary type cast was used to overcome a persistent issue with Supabase type generation.
-
-- [x] **4.4: Create Audit Trail & Color Coding**
-  - **Action:** Create a system to log significant user actions and display them in a real-time activity feed with color-coding for each user.
-  - **Components:** `ActivityFeed.tsx`
-  - **Utilities:** `logAction`, `getUserColor`
-  - **Notes:** Implemented the audit trail system. Created a generic `logAction` server function. Integrated logging into existing character actions. Built a real-time `ActivityFeed` component that subscribes to new log entries. Implemented a color-coding utility to visually distinguish user actions.
-
-- [x] **4.5: Advanced Workflow & State Management**
-  - **Action:** Enhance the workflow editor with more complex node types and state management using Zustand.
-  - **Notes:** Refactored the workflow canvas to use a new Zustand store (`src/lib/store/workflow-store.ts`) for state management. Introduced a new custom `CharacterNode` (`src/components/workflows/CharacterNode.tsx`) and updated `WorkflowCanvas.tsx` to integrate these changes.
-
-- [x] **4.5.1: Implement Scenes & Chapters with Tagging**
-  - **Action:** Build out the core `scenes` and `chapters` sections. Implement a many-to-many "tagging" system to link characters to scenes.
-  - **Notes:** Updated the database schema, adding `scenes`, `chapters`, and association tables (`character_scenes`, `scene_chapters`). Created server actions (`src/app/actions/scenes-actions.ts`) to manage data. Built directory and detail pages (`/scenes` and `/scenes/[id]`) with a tagging UI to link characters. Updated the main sidebar navigation.
-
-- [x] **4.6: Notifications System**
-  - **Action:** Develop a real-time notification system to alert users of important events, such as new comments on their content or mentions.
-  - **Notes:** Added a `notifications` table to the DB. Modified the `addComment` action to create notifications. Built a real-time `NotificationBell.tsx` component using Supabase channels and integrated it into the main `Header.tsx`. Created a server action (`notifications-actions.ts`) to mark notifications as read.
-
-- [x] **4.7: User Roles & Permissions**
-  - **Action:** Refine and test the RBAC system to ensure all user roles function as expected.
-  - **Notes:** Added a `role` column to the `profiles` table and created granular RLS policies for assets and comments. Implemented a client-side `useUser` hook and `UserProvider` to easily access user/profile data. Created a `RoleGuard` component to conditionally render UI based on user roles and applied it to protect creation actions.
-
-- [x] **4.8: Search & Filtering**
-  - **Action:** Implement advanced search and filtering capabilities in the main directories.
-  - **Notes:** Implemented search (by name/description) and status filtering on the Characters directory page. The page state is managed via URL query parameters. Created a reusable `FilterControls` component.
-
-- [ ] **4.9: Deployment & Finalization**
-  - **Action:** Prepare the application for deployment. This includes optimizing performance, running tests, and creating a production build.
-  - **Notes:**
+- **[X] Global "Color Key" Feature**
+  - **[X]** Add top-level "Color Keys" link to the main sidebar.
+  - **[X]** Build the Color Key management list page (`/color-keys`).
+  - **[X]** Build the Color Key discovery/detail page (`/color-keys/[id]`).
+  - **[X]** Integrate a Color Key quick-access panel into the main dashboard.
+  
+- **[X] Character Page Dual System UI**
+  - **[X]** Create `AttributeTagManager` component for character-specific tags.
+  - **[X]** Create `updateCharacterAttributeTags` server action.
+  - **[X]** Refactor old `TagManager` into `ColorKeyManager`.
+  - **[X]** Update Character Detail Page to use both managers.
 
 ---
 
-### **Phase 5: Dashboard, Content & Filtering Overhaul (Week 7)**
+### **Phase 5: Admin Notes & Assignment System (Current)**
 
-- [x] **5.1: Critical Bug Fixes & UI Polish**
-  - **Action:** Addressed several key UI and logic bugs.
-  - **Notes:**
-    - Fixed the `/scenes` page title/button alignment using flexbox.
-    - Fixed the main content layout's "squashed" appearance by adding `max-w-screen-2xl mx-auto` to the main layout wrapper.
-    - Created the `/chapters` page (`src/app/(app)/chapters/page.tsx`) and a corresponding `createChapter` server action to resolve a 404 error.
-    - Automated workflow creation: removed the "Create Workflow" button and updated the `createCharacter`, `createScene`, and `createChapter` server actions to automatically generate a linked workflow upon item creation. The `character_id`, `scene_id`, and `chapter_id` foreign keys were added to the `workflows` table.
+This phase implements a system for Admins to create notes, pin them for themselves, and assign them to the dashboards of other users.
 
-- [x] **5.2: New Dashboard Homepage**
-  - **Action:** Created a new central dashboard to serve as the application's homepage.
-  - **Notes:**
-    - Created the new page at `src/app/(app)/dashboard/page.tsx`.
-    - Updated the login logic in `src/app/(auth)/login/page.tsx` to redirect users to `/dashboard` after authentication.
-    - Implemented a "Project Summary" component to display the project's mission.
-    - Added a "Recent Activity" feed by fetching data from the `audit_log` table and displaying it. Fixed a missing DB relationship in the query by using an explicit `!inner` join.
-    - Added placeholder sections for "Project Stats" and "Quick Links".
+- **[X] Database Schema for Notes**
+  - **[X]** Create `notes` table for note content and global pin status.
+  - **[X]** Create `note_assignments` table to link notes to specific users.
 
-- [x] **5.3: Sidebar Navigation & Content Expansion**
-  - **Action:** Added new static content sections and updated the main navigation.
-  - **Notes:**
-    - Created two new static pages: `src/app/(app)/artist-statement/page.tsx` and `src/app/(app)/vision-and-mission/page.tsx`.
-    - Updated the sidebar component (`src/components/layout/sidebar.tsx`) to include links to the new Dashboard, Artist Statement, and Vision & Mission pages.
-
-- [x] **5.4: Advanced Character Filtering**
-  - **Action:** Enhanced the character directory with more advanced, tag-based filtering.
-  - **Notes:**
-    - Added a `tags` JSONB column to the `characters` table via a new Supabase migration (`20240523000000_add_tags_to_characters.sql`).
-    - Updated `FilterControls.tsx` to include a new multi-select dropdown for "Cosmetic Symbology".
-    - Updated the Supabase query in `src/app/(app)/characters/page.tsx` to filter characters based on the new `tags` column using the `cs` (contains) operator.
+- **[X] Notes Management Page**
+  - **[X]** Add a new admin-only "Notes" link to the main sidebar.
+  - **[X]** Create server actions for all note operations (`create`, `delete`, `pin`, `assign`).
+  - **[X]** Build a comprehensive client component (`NotesClient`) to manage the UI.
+  - **[X]** Create the main `/notes` page to host the client component and fetch data.
+  
+- **[X] Dashboard Integration**
+  - **[X]** Update dashboard data fetching to pull all notes relevant to the current user.
+  - **[X]** Create a "Pinned Notes" section on the dashboard to display them.
 
 ---
 

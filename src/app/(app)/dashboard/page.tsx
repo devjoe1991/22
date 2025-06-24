@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Film, BookOpen } from 'lucide-react'; // Import necessary icons
+import { User, Film, BookOpen, Palette } from 'lucide-react'; // Import necessary icons
+import { Button } from '@/components/ui/button';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -14,13 +15,28 @@ export default async function DashboardPage() {
     { count: charactersCount },
     { count: scenesCount },
     { data: chapters },
-    { data: activityLog }
+    { data: activityLog },
+    { data: colorKeys },
+    { data: myPinnedNotes },
+    { data: assignedNotesData }
   ] = await Promise.all([
     supabase.from('characters').select('*', { count: 'exact', head: true }),
     supabase.from('scenes').select('*', { count: 'exact', head: true }),
     supabase.from('chapters').select('id, name').order('created_at', { ascending: true }),
-    supabase.from('audit_log').select('*, profiles(username)').order('created_at', { ascending: false }).limit(7)
+    supabase.from('audit_log').select('*, profiles(username)').order('created_at', { ascending: false }).limit(7),
+    (supabase as any).from('color_keys').select('id, name, color').limit(3),
+    // Query 1: Get notes created by the user and pinned globally
+    (supabase as any).from('notes').select('*').eq('creator_id', user?.id).eq('is_pinned_globally', true),
+    // Query 2: Get notes assigned to the user by others
+    (supabase as any).from('note_assignments').select('notes(*, profiles:creator_id(username))').eq('user_id', user?.id)
   ]);
+  
+  // Combine and process the results for the dashboard notes
+  const assignedNotes = assignedNotesData?.map((item: any) => ({
+      ...item.notes,
+      assigned_by: item.notes.profiles.username,
+  })) || [];
+  const allDashboardNotes = [...(myPinnedNotes || []), ...assignedNotes];
 
   return (
     <div className="space-y-8">
@@ -29,6 +45,29 @@ export default async function DashboardPage() {
             <h1 className="text-2xl font-bold text-foreground">Welcome back, {profile?.username || 'Admin'}!</h1>
             <p className="text-muted-foreground">Here&apos;s what&apos;s happening with The Rebirth H22 project today.</p>
         </div>
+
+        {/* Pinned Notes Section */}
+        {allDashboardNotes.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Pinned Notes</h3>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {allDashboardNotes.map((note: any) => (
+                <Card key={note.id} className="bg-yellow-100 dark:bg-yellow-900/30 border-yellow-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <p className="text-sm text-foreground">{note.content}</p>
+                    </div>
+                    {note.assigned_by && (
+                      <p className="text-xs text-muted-foreground mt-3 pt-2 border-t">
+                        Pinned for you by: <span className="font-semibold">{note.assigned_by}</span>
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Counters and Chapters Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -56,8 +95,32 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
 
+          {/* Quick Access for Color Keys */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="h-5 w-5 text-muted-foreground" />
+                <span>Color Key System</span>
+              </CardTitle>
+              <CardDescription>Thematic keys used to link project elements.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {colorKeys?.slice(0, 3).map((key: any) => (
+                  <Link key={key.id} href={`/color-keys/${key.id}`} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted -mx-2">
+                    <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: key.color }}></div>
+                    <span className="font-medium text-sm">{key.name}</span>
+                  </Link>
+                ))}
+              </div>
+              <Button asChild variant="secondary" className="mt-4 w-full">
+                <Link href="/color-keys">Manage All Color Keys</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Special Card for Chapters List */}
-          <Card className="md:col-span-2">
+          <Card className="md:col-span-2 lg:col-span-4">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-muted-foreground" />

@@ -83,3 +83,40 @@ Confidence through Feedback: Every action (especially saving) must provide immed
 Context is King: The UI should always make it clear what project entity is being viewed or edited. Breadcrumbs and clear headings are mandatory.
 
 Minimize Clicks: Key actions should be easily accessible. For example, uploading a new file to a character should be possible directly from the character's detail page.
+
+### Database Schema
+
+This section documents the key tables and custom types in the Supabase database.
+
+- **`characters`**: Stores all character data.
+  - `attribute_tags` (JSONB): Stores character-specific, non-colored attribute tags.
+    - Structure: `{"physical_attributes": [], "cosmetic_symbology": [], "animal_form": []}`
+
+- **`color_keys`**: A global table to store all reusable, color-coded thematic tags.
+  - `id` (UUID, PK)
+  - `name` (TEXT, NOT NULL, UNIQUE)
+  - `color` (TEXT, NOT NULL, default: '#808080') - Stores a hex color code.
+  - `description` (TEXT)
+  - `user_id` (UUID, FK to `auth.users`)
+
+- **`entity_color_keys`**: A polymorphic association table to link Color Keys to other entities.
+  - `key_id` (UUID, FK to `color_keys`, PK)
+  - `entity_id` (UUID, PK)
+  - `entity_type` (TEXT, PK) - e.g., 'character', 'scene', 'chapter'
+  
+### Custom SQL Functions
+
+- **`get_my_role()`**: A security-definer function that safely returns the role of the currently authenticated user from the `profiles` table. Used in RLS policies.
+
+- **`notes`**: A table to store admin-created notes.
+  - `id` (UUID, PK)
+  - `content` (TEXT, NOT NULL)
+  - `creator_id` (UUID, FK to `auth.users`)
+  - `is_pinned_globally` (BOOLEAN) - For the creator's own dashboard.
+  - `created_at` (TIMESTAMPTZ)
+
+- **`note_assignments`**: An association table to pin notes to other users' dashboards.
+  - `note_id` (UUID, FK to `notes`, PK)
+  - `user_id` (UUID, FK to `auth.users`, PK) - The user receiving the note.
+  - `assigned_by` (UUID, FK to `auth.users`) - The admin who assigned it.
+  - `created_at` (TIMESTAMPTZ)

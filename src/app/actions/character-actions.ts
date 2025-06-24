@@ -86,4 +86,28 @@ export async function updateCharacterTags(
 
   // Revalidate the path to show the updated data
   revalidatePath(`/characters/${characterId}`);
+}
+
+export async function updateCharacterAttributeTags(characterId: string, attributeType: string, newTags: string[]) {
+    const supabase = createSupabaseServerClient();
+    
+    // Construct the update object to target a specific key in the JSONB column
+    const updateObject = {
+        attribute_tags: {
+            [attributeType]: newTags
+        }
+    };
+
+    const { error } = await supabase
+        .from('characters')
+        .update(updateObject as any)
+        .eq('id', characterId);
+
+    if (error) {
+        console.error("Failed to update attribute tags:", error);
+        return { error: 'Failed to update character attributes.' };
+    }
+
+    revalidatePath(`/characters/${characterId}`);
+    return { error: null };
 } 
