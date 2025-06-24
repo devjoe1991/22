@@ -1,12 +1,26 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { User, Film, BookOpen } from 'lucide-react'; // Import necessary icons
 
 export default async function DashboardPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   // The user should always exist here because of the middleware, but we'll handle the null case.
   const { data: profile } = user ? await supabase.from('profiles').select('username').eq('id', user.id).single() : { data: null };
-  const { data: activityLog } = await supabase.from('audit_log').select('*, profiles(username)').order('created_at', { ascending: false }).limit(7);
+  
+  // Fetch counts, chapters, and activity log concurrently
+  const [
+    { count: charactersCount },
+    { count: scenesCount },
+    { data: chapters },
+    { data: activityLog }
+  ] = await Promise.all([
+    supabase.from('characters').select('*', { count: 'exact', head: true }),
+    supabase.from('scenes').select('*', { count: 'exact', head: true }),
+    supabase.from('chapters').select('id, name').order('created_at', { ascending: true }),
+    supabase.from('audit_log').select('*, profiles(username)').order('created_at', { ascending: false }).limit(7)
+  ]);
 
   return (
     <div className="space-y-8">
@@ -14,6 +28,63 @@ export default async function DashboardPage() {
         <div>
             <h1 className="text-2xl font-bold text-foreground">Welcome back, {profile?.username || 'Admin'}!</h1>
             <p className="text-muted-foreground">Here&apos;s what&apos;s happening with The Rebirth H22 project today.</p>
+        </div>
+
+        {/* Counters and Chapters Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {/* Counter Box for Characters */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Characters</CardTitle>
+              <User className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{charactersCount ?? 0}</div>
+              <p className="text-xs text-muted-foreground">Managed character profiles</p>
+            </CardContent>
+          </Card>
+
+          {/* Counter Box for Scenes */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Scenes</CardTitle>
+              <Film className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{scenesCount ?? 0}</div>
+              <p className="text-xs text-muted-foreground">Constructed narrative scenes</p>
+            </CardContent>
+          </Card>
+
+          {/* Special Card for Chapters List */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-muted-foreground" />
+                <span>Project Chapters</span>
+              </CardTitle>
+              <CardDescription>A list of all chapters. Click any chapter to view its details and linked scenes.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {chapters && chapters.length > 0 ? (
+                <div className="space-y-2">
+                  {chapters.map((chapter) => (
+                    <Link
+                      key={chapter.id}
+                      href={`/chapters/${chapter.id}`}
+                      className="block rounded-md border p-3 text-sm font-medium transition-colors hover:bg-muted"
+                    >
+                      {chapter.name}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-sm text-muted-foreground py-4">
+                  No chapters have been created yet.
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Project Summary Card */}
