@@ -1,10 +1,14 @@
 'use client';
 
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
-// We'll need server actions for adding/removing tags
-// import { addTagToEntity, removeTagFromEntity } from '@/app/actions/tags-actions';
+import { X, ChevronsUpDown } from "lucide-react";
+import { addTagToEntity, removeTagFromEntity } from '@/app/actions/tags-actions';
 import { RoleGuard } from "../auth/RoleGuard";
+import { useFormStatus } from "react-dom";
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useState } from "react";
 
 // This function determines if text should be light or dark based on background color
 const getContrastYIQ = (hexcolor: string) => {
@@ -26,6 +30,60 @@ type TagManagerProps = {
     allAvailableTags: Tag[];
 };
 
+function RemoveTagButton() {
+    const { pending } = useFormStatus();
+    return (
+        <button type="submit" disabled={pending} className="ml-2 p-0.5 rounded-full hover:bg-black/20 transition-colors disabled:opacity-50">
+            {pending ? <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div> : <X size={14} />}
+        </button>
+    )
+}
+
+function AddTagForm({ entityId, entityType, allAvailableTags, appliedTags }: { entityId: string, entityType: string, allAvailableTags: Tag[], appliedTags: Tag[] }) {
+    const [open, setOpen] = useState(false)
+    const { pending } = useFormStatus();
+
+    const unappliedTags = allAvailableTags.filter(tag => !appliedTags.some(applied => applied.id === tag.id));
+
+    return (
+        <RoleGuard allowedRoles={['admin', 'editor']}>
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between" disabled={pending}>
+                        {pending ? "Adding..." : "+ Add Tag"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0">
+                    <Command>
+                        <CommandInput placeholder="Search tags..." />
+                        <CommandList>
+                            <CommandEmpty>No tags found.</CommandEmpty>
+                            <CommandGroup>
+                                {unappliedTags.map((tag) => (
+                                    <CommandItem
+                                        key={tag.id}
+                                        value={tag.name}
+                                        onSelect={async () => {
+                                            await addTagToEntity(entityId, entityType, tag.id);
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        <div className="flex items-center">
+                                            <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: tag.color }}></div>
+                                            {tag.name}
+                                        </div>
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+        </RoleGuard>
+    )
+}
+
 export function TagManager({ entityId, entityType, appliedTags, allAvailableTags }: TagManagerProps) {
     return (
         <div>
@@ -35,8 +93,11 @@ export function TagManager({ entityId, entityType, appliedTags, allAvailableTags
                     <Badge key={tag.id} style={{ backgroundColor: tag.color, color: getContrastYIQ(tag.color) }} className="text-sm font-medium">
                         {tag.name}
                         <RoleGuard allowedRoles={['admin', 'editor']}>
-                           {/* Add a form/button here to call removeTagFromEntity */}
-                           <button className="ml-2 p-0.5 rounded-full hover:bg-black/20 transition-colors"><X size={14}/></button>
+                           <form action={async () => {
+                                await removeTagFromEntity(entityId, entityType, tag.id)
+                           }}>
+                                <RemoveTagButton />
+                           </form>
                         </RoleGuard>
                     </Badge>
                 ))}
@@ -44,13 +105,9 @@ export function TagManager({ entityId, entityType, appliedTags, allAvailableTags
                     <p className="text-sm text-muted-foreground">No key elements tagged yet.</p>
                 )}
             </div>
-            <RoleGuard allowedRoles={['admin', 'editor']}>
-                <div className="mt-4">
-                    {/* Here you will add a Combobox (from Shadcn/UI) that is populated */}
-                    {/* with `allAvailableTags` and calls `addTagToEntity` on submit. */}
-                    <p className="text-sm text-muted-foreground">[Admin/Editor Combobox to add tags goes here]</p>
-                </div>
-            </RoleGuard>
+            <div className="mt-4">
+                <AddTagForm entityId={entityId} entityType={entityType} allAvailableTags={allAvailableTags} appliedTags={appliedTags} />
+            </div>
         </div>
     );
 } 

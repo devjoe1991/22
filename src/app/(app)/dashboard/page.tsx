@@ -13,7 +13,7 @@ export default async function DashboardPage() {
         {/* Header */}
         <div>
             <h1 className="text-2xl font-bold text-foreground">Welcome back, {profile?.username || 'Admin'}!</h1>
-            <p className="text-muted-foreground">Here's what's happening with The Rebirth H22 project today.</p>
+            <p className="text-muted-foreground">Here&apos;s what&apos;s happening with The Rebirth H22 project today.</p>
         </div>
 
         {/* Project Summary Card */}

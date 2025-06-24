@@ -21,4 +21,38 @@ export async function createTag(prevState: any, formData: FormData) {
   }
 
   revalidatePath('/settings/tags');
+  return { error: null };
+}
+
+export async function addTagToEntity(entityId: string, entityType: string, tagId: string) {
+  const supabase = createSupabaseServerClient();
+  
+  const { error } = await (supabase as any).from('entity_tags').insert({
+    entity_id: entityId,
+    entity_type: entityType,
+    tag_id: tagId,
+  });
+
+  if (error) {
+    console.error('Failed to add tag:', error);
+    return { error: 'Failed to add tag to entity.' };
+  }
+
+  revalidatePath(`/${entityType}s/${entityId}`);
+}
+
+export async function removeTagFromEntity(entityId: string, entityType: string, tagId: string) {
+  const supabase = createSupabaseServerClient();
+
+  const { error } = await (supabase as any).from('entity_tags').delete()
+    .eq('entity_id', entityId)
+    .eq('entity_type', entityType)
+    .eq('tag_id', tagId);
+
+  if (error) {
+    console.error('Failed to remove tag:', error);
+    return { error: 'Failed to remove tag from entity.' };
+  }
+
+  revalidatePath(`/${entityType}s/${entityId}`);
 } 
