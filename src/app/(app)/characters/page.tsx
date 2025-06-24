@@ -16,14 +16,18 @@ export default async function CharactersPage({
   searchParams?: {
     search?: string;
     status?: string;
-    cosmetic?: string;
+    physical_attribute?: string;
+    cosmetic_symbology?: string;
+    animal_form?: string;
   };
 }) {
   const supabase = createClient();
 
   const searchQuery = searchParams?.search || '';
   const statusFilter = searchParams?.status || '';
-  const cosmeticFilter = searchParams?.cosmetic || '';
+  const physicalAttributeFilter = searchParams?.physical_attribute || '';
+  const cosmeticSymbologyFilter = searchParams?.cosmetic_symbology || '';
+  const animalFormFilter = searchParams?.animal_form || '';
 
   // Start building the Supabase query
   let query = supabase
@@ -40,11 +44,16 @@ export default async function CharactersPage({
   if (statusFilter && statusFilter !== 'all') {
     query = query.eq('status', statusFilter);
   }
-
-  // Apply cosmetic tag filter if one is selected
-  if (cosmeticFilter) {
-    // This query finds characters where the 'tags'->'cosmetic' array contains the filter value.
-    query = query.filter('tags', 'cs', `{"cosmetic": ["${cosmeticFilter}"]}`);
+  
+  // Apply tag filters
+  if (physicalAttributeFilter) {
+    query = query.filter('filter_tags', 'cs', `{"physical_attributes": ["${physicalAttributeFilter}"]}`);
+  }
+  if (cosmeticSymbologyFilter) {
+    query = query.filter('filter_tags', 'cs', `{"cosmetic_symbology": ["${cosmeticSymbologyFilter}"]}`);
+  }
+  if (animalFormFilter) {
+    query = query.filter('filter_tags', 'cs', `{"animal_form": ["${animalFormFilter}"]}`);
   }
   
   // Order by creation date
@@ -54,8 +63,8 @@ export default async function CharactersPage({
   const { data: characters } = await query;
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-4">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Characters</h1>
         <RoleGuard allowedRoles={['admin', 'editor']}>
           <form action={createCharacter}>

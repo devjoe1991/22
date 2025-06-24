@@ -56,7 +56,14 @@ export async function middleware(request: NextRequest) {
   // If user is signed in and tries to access login/signup, redirect to home
   if (session && (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup'))) {
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  // If user is signed in and on the root path, redirect to the dashboard
+  if (session && request.nextUrl.pathname === '/') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 

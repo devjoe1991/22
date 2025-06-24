@@ -3,6 +3,7 @@
 import { createClient as createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { logAction } from '@/lib/audit/actions';
 
 export async function createChapter() {
   const supabase = createSupabaseServerClient();
@@ -24,6 +25,11 @@ export async function createChapter() {
   }
 
   if (newChapter) {
+    await logAction('chapter.create', {
+      item_id: newChapter.id,
+      item_type: 'chapter',
+      item_name: newChapter.name,
+    });
     await supabase.from('workflows').insert({
       name: `Workflow for ${newChapter.name}`,
       user_id: user.id,

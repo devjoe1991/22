@@ -24,6 +24,11 @@ status (enum: 'idea', 'in-progress', 'completed')
 
 thumbnail_url (text)
 
+filter_tags (JSONB, stores categorized tags for filtering)
+  - physical_attributes: string[]
+  - cosmetic_symbology: string[]
+  - animal_form: string[]
+
 Asset: A file linked to another entity.
 
 id (UUID)

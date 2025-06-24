@@ -3,6 +3,7 @@
 import { createClient as createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { logAction } from '@/lib/audit/actions';
 
 export async function createScene() {
   const supabase = createSupabaseServerClient();
@@ -23,6 +24,11 @@ export async function createScene() {
   }
 
   if (newScene) {
+    await logAction('scene.create', {
+      item_id: newScene.id,
+      item_type: 'scene',
+      item_name: newScene.name,
+    });
     await supabase.from('workflows').insert({
       name: `Workflow for ${newScene.name}`,
       user_id: user.id,

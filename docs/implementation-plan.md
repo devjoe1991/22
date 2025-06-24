@@ -199,3 +199,39 @@
     - Added a `tags` JSONB column to the `characters` table via a new Supabase migration (`20240523000000_add_tags_to_characters.sql`).
     - Updated `FilterControls.tsx` to include a new multi-select dropdown for "Cosmetic Symbology".
     - Updated the Supabase query in `src/app/(app)/characters/page.tsx` to filter characters based on the new `tags` column using the `cs` (contains) operator.
+
+---
+
+### **Phase 6: Professional Overhaul & Admin Tooling (Week 8)**
+
+- [x] **6.1: Professional Theming & UI Polish**
+  - **Action:** Overhauled the application's visual theme and improved the UI/UX.
+  - **Notes:**
+    - Changed the application theme to `slate` in `globals.css` for a more professional, dark-mode-first aesthetic.
+    - Added a live UK date/time display (`src/components/layout/LiveDateTime.tsx`) to the main header for improved context.
+    - Refactored the main app layout for more elegant content padding and width constraints.
+
+- [x] **6.2: Admin Inline Editing**
+  - **Action:** Empowered admins with the ability to edit content directly on the page.
+  - **Notes:**
+    - Created a reusable `EditableField.tsx` component for inline editing of titles.
+    - Implemented a generic `updateItemName` server action in `general-actions.ts` to handle updates for multiple tables.
+    - Integrated the editable field into the Scene detail page, allowing admins to change scene names without navigating away.
+    - Refactored the scene detail page into a Server Component with a child Client Component to support both server-side data fetching and client-side interactivity.
+
+- [x] **6.3: Versatile Admin Dashboard**
+  - **Action:** Rebuilt the dashboard to be a more effective and informative hub.
+  - **Notes:**
+    - Updated middleware to robustly redirect authenticated users to `/dashboard`.
+    - Redesigned the dashboard UI with a new welcome header and project vision card.
+    - Enhanced the "Recent Activity" feed to be more detailed, including links to the modified items.
+    - Updated the `logAction` function and all its call sites to ensure `item_id`, `item_type`, and `item_name` are always included for generating activity links.
+
+- [x] **6.4: Advanced Character Tagging System**
+  - **Action:** Implemented a flexible, multi-category tagging system for characters.
+  - **Notes:**
+    - Added a `filter_tags` JSONB column to the `characters` table via a new migration.
+    - Created a `TagManager.tsx` component for admins to add and remove tags on the character detail page.
+    - Implemented an `updateCharacterTags` server action to handle the JSONB updates.
+    - Overhauled the `FilterControls.tsx` component, replacing the old filters with new, multi-select dropdowns for each tag category (`physical_attributes`, `cosmetic_symbology`, `animal_form`).
+    - Updated the character directory page to filter characters based on the new tag system.

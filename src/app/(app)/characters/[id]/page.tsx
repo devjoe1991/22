@@ -5,6 +5,9 @@ import CommentSection from '@/components/characters/comment-section';
 import ActivityFeed from '@/components/characters/activity-feed';
 import TiptapEditor from '@/components/editor/tiptap-editor';
 import { saveCharacterStory } from '@/components/characters/actions';
+import { TagManager } from '@/components/characters/TagManager';
+import { updateCharacterTags } from '@/app/actions/character-actions';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface CharacterDetailPageProps {
   params: { id: string };
@@ -27,6 +30,8 @@ export default async function CharacterDetailPage({ params }: CharacterDetailPag
     notFound();
   }
 
+  // @ts-ignore - types not updated with filter_tags yet
+  const tags = character.filter_tags || { physical_attributes: [], cosmetic_symbology: [], animal_form: [] };
   const saveStoryAction = saveCharacterStory.bind(null, character.id);
 
   return (
@@ -43,8 +48,33 @@ export default async function CharacterDetailPage({ params }: CharacterDetailPag
         <AssetGallery characterId={character.id} />
         <CommentSection characterId={character.id} initialComments={comments as any || []} />
       </div>
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 space-y-6">
         <ActivityFeed initialLogs={auditLogs as any || []} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Character Tags</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <TagManager 
+              characterId={character.id}
+              category="physical_attributes"
+              tags={tags.physical_attributes}
+              updateAction={updateCharacterTags}
+            />
+            <TagManager 
+              characterId={character.id}
+              category="cosmetic_symbology"
+              tags={tags.cosmetic_symbology}
+              updateAction={updateCharacterTags}
+            />
+            <TagManager 
+              characterId={character.id}
+              category="animal_form"
+              tags={tags.animal_form}
+              updateAction={updateCharacterTags}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

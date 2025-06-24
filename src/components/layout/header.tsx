@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import { NAV_LINKS } from "./sidebar";
 import React from "react";
+import { LiveDateTime } from "./LiveDateTime";
 
 export default function Header({ authButton }: { authButton: React.ReactNode }) {
     return (
@@ -35,7 +36,8 @@ export default function Header({ authButton }: { authButton: React.ReactNode }) 
                 </SheetContent>
             </Sheet>
             <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-4">
+                    <LiveDateTime />
                     {authButton}
                 </div>
             </div>
