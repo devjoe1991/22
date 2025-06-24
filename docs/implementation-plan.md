@@ -235,3 +235,34 @@
     - Implemented an `updateCharacterTags` server action to handle the JSONB updates.
     - Overhauled the `FilterControls.tsx` component, replacing the old filters with new, multi-select dropdowns for each tag category (`physical_attributes`, `cosmetic_symbology`, `animal_form`).
     - Updated the character directory page to filter characters based on the new tag system.
+
+---
+
+### **Phase 7: Global, Color-Coded Tagging System (Current)**
+
+This phase introduces a new, centralized system for creating, managing, and applying color-coded tags (called "Key Elements") to any core entity (Character, Scene, Chapter). This replaces the previous, more limited tagging implementations.
+
+- **[X] Database Schema for Global Tags:**
+    - **[X]** Created a new migration (`20240525000000_create_global_tag_system.sql`).
+    - **[X]** Added `tags` table for storing global, color-coded tags.
+    - **[X]** Added `entity_tags` polymorphic association table to link tags to characters, scenes, or chapters.
+    - **[X]** Implemented the `get_my_role()` SQL helper function for RLS policies.
+    - **[X]** Defined and applied all necessary Row Level Security policies for `tags` and `entity_tags`.
+    - **[X]** Created `get_tags_for_entity` SQL function to bypass type generation issues.
+
+- **[X] Admin UI for Tag Management:**
+    - **[X]** Created a new settings page at `/app/(app)/settings/tags/page.tsx`.
+    - **[X]** Built a dedicated client component (`CreateTagForm.tsx`) to handle form state and interactivity.
+    - **[X]** Implemented the `createTag` server action in `/app/actions/tags-actions.ts` to allow admins to create new tags.
+    - **[X]** The page lists all existing tags with their corresponding color.
+
+- **[X] Tagging UI on Detail Pages:**
+    - **[X]** Created a new reusable component `src/components/tags/TagManager.tsx`.
+    - **[X]** The `TagManager` displays an entity's applied tags as colored badges.
+    - **[X]** Integrated the `TagManager` into the character detail page (`/app/(app)/characters/[id]/page.tsx`).
+    - **[X]** Data fetching on the character page was updated to retrieve all available tags and the specific tags applied to that character.
+
+### Next Steps
+- Implement the "add" and "remove" tag functionality within the `TagManager` component.
+- Roll out the `TagManager` component to Scene and Chapter detail pages.
+- Generate updated Supabase types to remove the need for `@ts-ignore` and `(supabase as any)` workarounds.

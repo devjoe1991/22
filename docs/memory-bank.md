@@ -24,10 +24,8 @@ status (enum: 'idea', 'in-progress', 'completed')
 
 thumbnail_url (text)
 
-filter_tags (JSONB, stores categorized tags for filtering)
-  - physical_attributes: string[]
-  - cosmetic_symbology: string[]
-  - animal_form: string[]
+- **`filter_tags`**: A `JSONB` column on the `characters` table to store structured tags for advanced filtering. This is now considered **legacy** and replaced by the global tag system.
+  - Structure: `{ "physical_attributes": ["tag1", "tag2"], "cosmetic_symbology": ["tag3"], "animal_form": ["tag4"] }`
 
 Asset: A file linked to another entity.
 
@@ -54,6 +52,23 @@ action_type (text, e.g., 'character.create')
 details (JSONB)
 
 created_at (timestamp)
+
+- **`tags`**: A global table to store all reusable, color-coded tags (Key Elements).
+  - `id` (UUID, PK)
+  - `name` (TEXT, NOT NULL, UNIQUE)
+  - `color` (TEXT, NOT NULL, default: '#808080') - Stores a hex color code.
+  - `description` (TEXT)
+  - `user_id` (UUID, FK to `auth.users`)
+
+- **`entity_tags`**: A polymorphic association table to link tags to other entities.
+  - `tag_id` (UUID, FK to `tags`, PK)
+  - `entity_id` (UUID, PK) - The ID of the character, scene, or chapter.
+  - `entity_type` (TEXT, PK) - A string identifying the table, e.g., 'character', 'scene'.
+
+### Key Functions
+
+- **`get_my_role()`**: A SQL function that returns the role of the currently authenticated user from the `profiles` table. Used for RLS policies.
+- **`get_tags_for_entity(entity_id_param UUID, entity_type_param TEXT)`**: A SQL function that returns a JSONB array of all tag objects associated with a given entity. Used to work around type-generation issues.
 
 2. Key Decisions
 Real-time Strategy: We will use Supabase's built-in Realtime subscriptions for live updates on comments and activity feeds. For collaborative editing (Tiptap, React Flow), we will broadcast changes via Supabase Realtime and rely on application-level state management to resolve conflicts (last-write-wins).
