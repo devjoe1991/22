@@ -23,9 +23,17 @@ export async function createColorKey(prevState: any, formData: FormData) {
   return { error: null };
 }
 
-export async function addColorKeyToEntity(entityId: string, entityType: string, keyId: string) {
+export async function addColorKeyToEntity(formData: FormData) {
   const supabase = createSupabaseServerClient();
   
+  const entityId = formData.get('entityId') as string;
+  const entityType = formData.get('entityType') as string;
+  const keyId = formData.get('keyId') as string;
+
+  if (!entityId || !entityType || !keyId) {
+    return { error: 'Missing required data to add color key.' };
+  }
+
   const { error } = await (supabase as any).from('entity_color_keys').insert({
     entity_id: entityId,
     entity_type: entityType,
@@ -38,6 +46,7 @@ export async function addColorKeyToEntity(entityId: string, entityType: string, 
   }
 
   revalidatePath(`/${entityType}s/${entityId}`);
+  return { error: null };
 }
 
 export async function removeColorKeyFromEntity(entityId: string, entityType: string, keyId: string) {

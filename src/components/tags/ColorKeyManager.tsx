@@ -4,11 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { X, ChevronsUpDown } from "lucide-react";
 import { addColorKeyToEntity, removeColorKeyFromEntity } from '@/app/actions/color-key-actions';
 import { RoleGuard } from "../auth/RoleGuard";
-import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 // This function determines if text should be light or dark based on background color
 const getContrastYIQ = (hexcolor: string) => {
@@ -40,7 +40,21 @@ function RemoveKeyButton({ isPending }: { isPending: boolean }) {
 
 function AddKeyForm({ entityId, entityType, allAvailableColorKeys, appliedColorKeys }: { entityId: string, entityType: string, allAvailableColorKeys: ColorKey[], appliedColorKeys: ColorKey[] }) {
     const [open, setOpen] = useState(false);
-    const [isPending, startTransition] = useTransition();
+
+    const handleAddKey = (keyId: string) => {
+      const formData = new FormData();
+      formData.append('entityId', entityId);
+      formData.append('entityType', entityType);
+      formData.append('keyId', keyId);
+
+      addColorKeyToEntity(formData).then((response) => {
+        if (response?.error) {
+          toast.error(response.error);
+        } else {
+          toast.success("Key added!");
+        }
+      });
+    };
 
     const unappliedKeys = allAvailableColorKeys.filter(key => !appliedColorKeys.some(applied => applied.id === key.id));
 
@@ -48,8 +62,8 @@ function AddKeyForm({ entityId, entityType, allAvailableColorKeys, appliedColorK
         <RoleGuard allowedRoles={['admin', 'editor']}>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between" disabled={isPending || unappliedKeys.length === 0}>
-                        {isPending ? 'Adding...' : 'Add Color Key'}
+                    <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between" disabled={unappliedKeys.length === 0}>
+                        Add Color Key
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
@@ -64,9 +78,7 @@ function AddKeyForm({ entityId, entityType, allAvailableColorKeys, appliedColorK
                                         key={key.id}
                                         value={key.name}
                                         onSelect={() => {
-                                            startTransition(() => {
-                                                void addColorKeyToEntity(entityId, entityType, key.id);
-                                            });
+                                            handleAddKey(key.id);
                                             setOpen(false);
                                         }}
                                     >
@@ -84,8 +96,6 @@ function AddKeyForm({ entityId, entityType, allAvailableColorKeys, appliedColorK
 }
 
 export function ColorKeyManager({ entityId, entityType, appliedColorKeys, allAvailableColorKeys }: ColorKeyManagerProps) {
-    const [isPending, startTransition] = useTransition();
-
     return (
         <div className="p-4 border rounded-lg bg-card text-card-foreground">
             <h3 className="font-semibold text-lg mb-4">Color Keys</h3>
@@ -94,8 +104,8 @@ export function ColorKeyManager({ entityId, entityType, appliedColorKeys, allAva
                     <Badge key={key.id} style={{ backgroundColor: key.color, color: getContrastYIQ(key.color) }} className="text-sm font-medium">
                         {key.name}
                         <RoleGuard allowedRoles={['admin', 'editor']}>
-                            <form action={() => startTransition(() => removeColorKeyFromEntity(entityId, entityType, key.id))}>
-                                <RemoveKeyButton isPending={isPending} />
+                            <form action={() => removeColorKeyFromEntity(entityId, entityType, key.id)}>
+                                <RemoveKeyButton isPending={false} />
                             </form>
                         </RoleGuard>
                     </Badge>

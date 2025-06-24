@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { TagManager } from '@/components/tags/TagManager';
+import { ColorKeyManager } from '@/components/tags/ColorKeyManager';
 import { EditableField } from '@/components/ui/EditableField';
 import { updateItemName } from '@/app/actions/general-actions';
 
@@ -19,7 +19,7 @@ export default async function ChapterPage({ params }: { params: { id: string } }
     notFound();
   }
 
-  const { data: appliedTags } = await (supabase as any).rpc('get_tags_for_entity', {
+  const { data: appliedColorKeys } = await (supabase as any).rpc('get_tags_for_entity', {
     entity_id_param: params.id,
     entity_type_param: 'chapter'
   });
@@ -40,11 +40,11 @@ export default async function ChapterPage({ params }: { params: { id: string } }
           textSize="text-3xl"
         />
         <div className="mt-6">
-          <TagManager
+          <ColorKeyManager
             entityId={params.id}
             entityType="chapter"
-            appliedTags={appliedTags || []}
-            allAvailableTags={allAvailableTags}
+            appliedColorKeys={appliedColorKeys || []}
+            allAvailableColorKeys={allAvailableTags || []}
           />
         </div>
         <div className="mt-8 prose prose-lg dark:prose-invert">
