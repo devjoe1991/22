@@ -1,6 +1,6 @@
 'use client';
 
-import { createTag } from "@/app/actions/tags-actions";
+import { createColorKey } from "@/app/actions/color-key-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFormState, useFormStatus } from "react-dom";
@@ -19,16 +19,18 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? 'Creating...' : 'Create Tag'}
+      {pending ? 'Creating...' : 'Create Key'}
     </Button>
   );
 }
 
-export function CreateTagForm() {
-  const [state, formAction] = useFormState(createTag, initialState);
+export function CreateColorKeyForm() {
+  const [state, formAction] = useFormState(createColorKey, initialState);
 
   useEffect(() => {
-    if (state?.error) {
+    if (state?.error === null) {
+      toast.success("Color key created successfully!");
+    } else if (state?.error) {
       toast.error(state.error);
     }
   }, [state]);
@@ -36,11 +38,11 @@ export function CreateTagForm() {
   return (
     <form action={formAction} className="space-y-4 p-4 border rounded-lg bg-card">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium mb-1">Tag Name</label>
+        <label htmlFor="name" className="block text-sm font-medium mb-1">Key Name</label>
         <Input id="name" name="name" required placeholder="e.g., Betrayal Theme" />
       </div>
       <div>
-        <label htmlFor="color" className="block text-sm font-medium mb-1">Tag Color</label>
+        <label htmlFor="color" className="block text-sm font-medium mb-1">Key Color</label>
         <div className="flex items-center gap-2">
           <Input id="color" name="color" type="color" className="p-1 h-10 w-14 block" defaultValue="#808080" />
           <Input name="color_hex" placeholder="Or type hex #..." className="flex-1" onChange={(e) => {

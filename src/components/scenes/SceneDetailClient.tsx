@@ -4,21 +4,21 @@ import { EditableField } from '@/components/ui/EditableField';
 import { TaggingForm } from '@/components/scenes/TaggingForm';
 import { updateItemName } from '@/app/actions/general-actions';
 import { Tables } from '@/lib/types/supabase';
-import { TagManager } from '../tags/TagManager';
+import { ColorKeyManager } from '@/components/tags/ColorKeyManager';
 
 type Character = Tables<'characters'>;
 type BasicCharacter = Pick<Tables<'characters'>, 'id' | 'name'>;
-type Tag = { id: string; name: string; color: string; };
+type ColorKey = { id: string; name: string; color: string; };
 
 interface SceneDetailClientProps {
   scene: Tables<'scenes'>;
   linkedCharacters: { characters: Character }[];
   allCharacters: BasicCharacter[];
-  appliedTags: Tag[];
-  allAvailableTags: Tag[];
+  appliedColorKeys: ColorKey[];
+  allAvailableColorKeys: ColorKey[];
 }
 
-export function SceneDetailClient({ scene, linkedCharacters, allCharacters, appliedTags, allAvailableTags }: SceneDetailClientProps) {
+export function SceneDetailClient({ scene, linkedCharacters, allCharacters, appliedColorKeys, allAvailableColorKeys }: SceneDetailClientProps) {
   const updateSceneName = updateItemName.bind(null, 'scenes', scene.id);
 
   return (
@@ -30,11 +30,11 @@ export function SceneDetailClient({ scene, linkedCharacters, allCharacters, appl
           fieldName="scene name"
         />
         <div className="mt-4">
-          <TagManager 
+          <ColorKeyManager 
             entityId={scene.id}
-            entityType="scene"
-            appliedTags={appliedTags}
-            allAvailableTags={allAvailableTags}
+            entityType="scenes"
+            appliedColorKeys={appliedColorKeys}
+            allAvailableColorKeys={allAvailableColorKeys}
           />
         </div>
       </div>
