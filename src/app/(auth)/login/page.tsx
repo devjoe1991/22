@@ -104,7 +104,7 @@ export default function LoginPage() {
             return;
         }
 
-        router.push('/characters');
+        router.push('/dashboard');
         router.refresh();
     };
 

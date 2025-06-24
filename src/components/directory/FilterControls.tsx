@@ -13,6 +13,7 @@ import {
 
 // The statuses are defined in memory_bank.md
 const statuses = ['idea', 'in-progress', 'completed'];
+const cosmeticSymbologyOptions = ['Ornate', 'Minimalist', 'Geometric', 'Ancient'];
 
 export function FilterControls() {
   const searchParams = useSearchParams();
@@ -39,6 +40,16 @@ export function FilterControls() {
     replace(`${pathname}?${params.toString()}`);
   };
 
+  const handleCosmeticFilterChange = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value && value !== 'all') {
+      params.set('cosmetic', value);
+    } else {
+      params.delete('cosmetic');
+    }
+    replace(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <div className="flex items-center gap-4 mb-6">
       <Input
@@ -59,6 +70,22 @@ export function FilterControls() {
           {statuses.map((status) => (
             <SelectItem key={status} value={status} className="capitalize">
               {status.replace('-', ' ')}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select
+        onValueChange={handleCosmeticFilterChange}
+        defaultValue={searchParams.get('cosmetic')?.toString() || 'all'}
+      >
+        <SelectTrigger className="w-[220px]">
+          <SelectValue placeholder="Filter by Cosmetic Symbology" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Cosmetic Symbologies</SelectItem>
+          {cosmeticSymbologyOptions.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
             </SelectItem>
           ))}
         </SelectContent>

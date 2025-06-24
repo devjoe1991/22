@@ -165,3 +165,37 @@
 - [ ] **4.9: Deployment & Finalization**
   - **Action:** Prepare the application for deployment. This includes optimizing performance, running tests, and creating a production build.
   - **Notes:**
+
+---
+
+### **Phase 5: Dashboard, Content & Filtering Overhaul (Week 7)**
+
+- [x] **5.1: Critical Bug Fixes & UI Polish**
+  - **Action:** Addressed several key UI and logic bugs.
+  - **Notes:**
+    - Fixed the `/scenes` page title/button alignment using flexbox.
+    - Fixed the main content layout's "squashed" appearance by adding `max-w-screen-2xl mx-auto` to the main layout wrapper.
+    - Created the `/chapters` page (`src/app/(app)/chapters/page.tsx`) and a corresponding `createChapter` server action to resolve a 404 error.
+    - Automated workflow creation: removed the "Create Workflow" button and updated the `createCharacter`, `createScene`, and `createChapter` server actions to automatically generate a linked workflow upon item creation. The `character_id`, `scene_id`, and `chapter_id` foreign keys were added to the `workflows` table.
+
+- [x] **5.2: New Dashboard Homepage**
+  - **Action:** Created a new central dashboard to serve as the application's homepage.
+  - **Notes:**
+    - Created the new page at `src/app/(app)/dashboard/page.tsx`.
+    - Updated the login logic in `src/app/(auth)/login/page.tsx` to redirect users to `/dashboard` after authentication.
+    - Implemented a "Project Summary" component to display the project's mission.
+    - Added a "Recent Activity" feed by fetching data from the `audit_log` table and displaying it. Fixed a missing DB relationship in the query by using an explicit `!inner` join.
+    - Added placeholder sections for "Project Stats" and "Quick Links".
+
+- [x] **5.3: Sidebar Navigation & Content Expansion**
+  - **Action:** Added new static content sections and updated the main navigation.
+  - **Notes:**
+    - Created two new static pages: `src/app/(app)/artist-statement/page.tsx` and `src/app/(app)/vision-and-mission/page.tsx`.
+    - Updated the sidebar component (`src/components/layout/sidebar.tsx`) to include links to the new Dashboard, Artist Statement, and Vision & Mission pages.
+
+- [x] **5.4: Advanced Character Filtering**
+  - **Action:** Enhanced the character directory with more advanced, tag-based filtering.
+  - **Notes:**
+    - Added a `tags` JSONB column to the `characters` table via a new Supabase migration (`20240523000000_add_tags_to_characters.sql`).
+    - Updated `FilterControls.tsx` to include a new multi-select dropdown for "Cosmetic Symbology".
+    - Updated the Supabase query in `src/app/(app)/characters/page.tsx` to filter characters based on the new `tags` column using the `cs` (contains) operator.

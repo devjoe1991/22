@@ -8,20 +8,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { createWorkflow } from '@/components/workflows/actions';
 import { PlusCircle } from 'lucide-react';
-
-// A form to contain the create button, which will trigger a server action
-function CreateWorkflowButton() {
-  return (
-    <form action={createWorkflow}>
-      <Button type="submit">
-        <PlusCircle className="mr-2 h-4 w-4" />
-        Create Workflow
-      </Button>
-    </form>
-  );
-}
 
 export default async function WorkflowsPage() {
   const cookieStore = cookies();
@@ -41,7 +28,6 @@ export default async function WorkflowsPage() {
     <div className="p-4 sm:p-6 md:p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Workflows</h1>
-        <CreateWorkflowButton />
       </div>
 
       {workflows && workflows.length > 0 ? (

@@ -7,21 +7,31 @@ import { redirect } from 'next/navigation';
 export async function createScene() {
   const supabase = createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: 'You must be logged in.' };
+  if (!user) {
+    return redirect('/login?message=You must be logged in to create a scene.');
+  }
 
-  const { data, error } = await supabase
+  const { data: newScene, error } = await supabase
     .from('scenes')
     .insert({ name: 'Untitled Scene', user_id: user.id })
-    .select('id')
+    .select('id, name')
     .single();
 
   if (error) {
     console.error('Error creating scene:', error);
-    return { error: 'Failed to create scene.' };
+    return redirect('/scenes?message=Failed to create scene.');
+  }
+
+  if (newScene) {
+    await supabase.from('workflows').insert({
+      name: `Workflow for ${newScene.name}`,
+      user_id: user.id,
+      scene_id: newScene.id
+    });
   }
   
   revalidatePath('/scenes');
-  redirect(`/scenes/${data.id}`);
+  redirect(`/scenes/${newScene.id}`);
 }
 
 export async function addCharacterToScene(formData: FormData) {

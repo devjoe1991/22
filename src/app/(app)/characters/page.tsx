@@ -16,12 +16,14 @@ export default async function CharactersPage({
   searchParams?: {
     search?: string;
     status?: string;
+    cosmetic?: string;
   };
 }) {
   const supabase = createClient();
 
   const searchQuery = searchParams?.search || '';
   const statusFilter = searchParams?.status || '';
+  const cosmeticFilter = searchParams?.cosmetic || '';
 
   // Start building the Supabase query
   let query = supabase
@@ -37,6 +39,12 @@ export default async function CharactersPage({
   // Apply status filter if a status is selected
   if (statusFilter && statusFilter !== 'all') {
     query = query.eq('status', statusFilter);
+  }
+
+  // Apply cosmetic tag filter if one is selected
+  if (cosmeticFilter) {
+    // This query finds characters where the 'tags'->'cosmetic' array contains the filter value.
+    query = query.filter('tags', 'cs', `{"cosmetic": ["${cosmeticFilter}"]}`);
   }
   
   // Order by creation date

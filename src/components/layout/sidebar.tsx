@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Workflow, Settings, Film, BookOpen } from 'lucide-react';
+import { Users, Settings, Film, BookOpen, Home, PenSquare, Eye } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export const NAV_LINKS = [
+    { href: '/dashboard', icon: Home, label: 'Home' },
+    { href: '/artist-statement', icon: PenSquare, label: 'Artist Statement' },
+    { href: '/vision-and-mission', icon: Eye, label: 'Vision & Mission' },
     { href: "/characters", label: "Characters", icon: Users },
     { href: "/scenes", label: "Scenes", icon: Film },
     { href: "/chapters", label: "Chapters", icon: BookOpen },
-    { href: "/workflows", label: "Workflows", icon: Workflow },
     { href: "/account", label: "Account", icon: Settings },
 ]
 
